@@ -37,13 +37,13 @@ class FilterModule(object):
 
         try:
             get_parser(command, device)
-        except:
-            raise AnsibleFilterError("Unable to find parser for command '{0}'".format(command))
+        except Exception as e:
+            raise AnsibleFilterError("Unable to find parser for command '{0}' ({1})".format(command, e))
 
         try:
             parsed_output = device.parse(command, output=cli_output)
-        except:
-            raise AnsibleFilterError("Unable to find parser for command '{0}'".format(command))
+        except Exception as e:
+            raise AnsibleFilterError("Unable to parse output for command '{0}' ({1})".format(command, e))
 
         if parsed_output:
             return parsed_output
