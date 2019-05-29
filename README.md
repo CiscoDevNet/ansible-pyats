@@ -4,7 +4,7 @@ ansible-pyats
 ansible-genie is a implementation of the [pyATS](https://developer.cisco.com/pyats/) network testing framework in an
 Ansible role.  It contains tasks and filters to:
 * Run a command and get structured output
-* "snapshot" the output of a command and save that to a file
+* "snapshot" the output of a command and save it to a file
 * Compare the current output of a command to a previous "snapshot"
 
 In addition to tasks to accomplish these things, `ansible-pyats` contains to filters:
@@ -20,8 +20,8 @@ Requirements
 Role Variables
 --------------
 
-`command`: the command to run on the device
-`snapshot_file`: the name of the tile to either store or retrieve the command "shapshot"
+* `command`: the command to run on the device
+* `snapshot_file`: the name of the file to either store or retrieve the command "shapshot"
 
 Dependencies
 ------------
