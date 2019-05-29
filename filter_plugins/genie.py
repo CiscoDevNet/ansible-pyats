@@ -3,11 +3,11 @@ __metaclass__ = type
 
 from ansible.module_utils.six import PY3, string_types
 from ansible.errors import AnsibleError, AnsibleFilterError
-from genie.utils.diff import Diff
 
 try:
     from genie.conf.base import Device, Testbed
     from genie.libs.parser.utils import get_parser
+    from genie.utils.diff import Diff
     HAS_GENIE = True
 except ImportError:
     HAS_GENIE = False
@@ -38,14 +38,12 @@ class FilterModule(object):
         try:
             get_parser(command, device)
         except:
-            raise AnsibleFilterError('Unable to find parser for command {0}'.format(command))
+            raise AnsibleFilterError("Unable to find parser for command '{0}'".format(command))
 
         try:
             parsed_output = device.parse(command, output=cli_output)
         except:
-            raise AnsibleFilterError('Unable to find parser for command {0}'.format(command))
-
-        diff = Diff(parsed_output, parsed_output)
+            raise AnsibleFilterError("Unable to find parser for command '{0}'".format(command))
 
         if parsed_output:
             return parsed_output

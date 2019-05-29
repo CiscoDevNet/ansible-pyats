@@ -1,38 +1,113 @@
-Role Name
+ansible-pyats
 =========
 
-A brief description of the role goes here.
+ansible-genie is a implementation of the [pyATS](https://developer.cisco.com/pyats/) network testing framework in an
+Ansible role.  It contains tasks and filters to:
+* Run a command and get structured output
+* "snapshot" the output of a command and save that to a file
+* Compare the current output of a command to a previous "snapshot"
+
+In addition to tasks to accomplish these things, `ansible-pyats` contains to filters:
+* `genie_parser`: provides structured data from unstructured command output
+* `genie_diff`: provides the difference between two data structures
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+* pyats
+* genie
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+`command`: the command to run on the device
+`snapshot_file`: the name of the tile to either store or retrieve the command "shapshot"
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+### Run a command and retreive the structured output
+```yaml
+- hosts: east-rtr1
+  connection: network_cli
+  gather_facts: no
+  roles:
+    - ansible-pyats
+  tasks:
+  - include_role:
+      name: ansible-pyats
+      tasks_from: parse_command
+    vars:
+      command: show ntp associations
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+  - debug:
+      var: parsed_output
+```
+
+### Snapshot the output of a command to a file
+```yaml
+- hosts: east-rtr1
+  connection: network_cli
+  gather_facts: no
+  roles:
+    - ansible-pyats
+  tasks:
+  - include_role:
+      name: ansible-pyats
+      tasks_from: snapshot
+    vars:
+      command: show ntp associations
+      snapshot_file: "{{ inventory_hostname }}_ntp.json"
+```
+
+### Compare the output of a command with a previous snapshot
+```yaml
+- hosts: router
+  connection: network_cli
+  gather_facts: no
+  roles:
+    - ansible-pyats
+  tasks:
+  - include_role:
+      name: ansible-pyats
+      tasks_from: compare
+    vars:
+      command: show ntp associations
+      snapshot_file: "{{ inventory_hostname }}_ntp.json"
+```
+
+### Using the `genie_parser` filter directly
+```yaml
+- hosts: router
+  connection: network_cli
+  gather_facts: no
+  roles:
+    - ansible-pyats
+  tasks:
+    - name: Run command
+      cli_command:
+        command: show ntp associations
+      register: cli_output
+    
+    - name: Parsing output
+      set_fact:
+        parsed_output: "{{ cli_output.stdout | genie_parser('show ntp associations', 'iosxe') }}"
+```
+
+### Using the `genie_diff` filter directly
+```yaml
+- name: Diff current and snapshot
+  set_fact:
+    diff_output: "{{ current_output | genie_diff(previous_output) }}"
+```
 
 License
 -------
 
-BSD
+Cisco Sample License
 
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
