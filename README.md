@@ -105,6 +105,85 @@ In addition to tasks to accomplish these things, `ansible-pyats` contains to fil
     diff_output: "{{ current_output | pyats_diff(previous_output) }}"
 ```
 
+### Change ACL configuration and compare before and after configs using `genie_diff`
+```yaml
+---
+
+- hosts: cisco
+  gather_facts: no
+  connection: network_cli
+
+  tasks:
+    - name: collect config (before)
+      ios_command:
+        commands:
+          - show run
+      register: result_before
+
+    - name: load new acl into device
+      ios_config:
+        lines:
+          - permit ip host 192.168.114.1 any
+          - permit ip host 192.168.114.2 any
+          - permit ip host 192.168.114.3 any
+        parents: ip access-list extended test
+        save_when: modified
+
+    - name: collect config (after)
+      ios_command:
+        commands:
+          - show run
+      register: result_after
+
+    - name: debug
+      debug:
+        msg: "{{ result_before.stdout[0] | genie_diff(result_after.stdout[0], mode='add', exclude=exclude_list) }}"
+
+  vars:
+    exclude_list:
+      - (^Using.*)
+      - (Building.*)
+      - (Current.*)
+      - (crypto pki certificate chain.*)
+```
+The argument `mode` can be `add` (displays added commands in result_after), `remove` (displays removed commands in result_after), or `modified` (displays modified commands). If `mode` argument is not specified, added, removed, and modified commands are displayed.  
+The argument `exclude` means command lists which is excluded when comparing before and after configs.
+In the playbook example above, variable `excluded_list`, which is defined as the play variable, is used.
+
+#### Other examples
+```yaml
+        msg: "{{ result_before.stdout[0] | genie_diff(result_after.stdout[0]) }}"
+        msg: "{{ result_before.stdout[0] | genie_diff(result_after.stdout[0], mode='remove') }}"
+        msg: "{{ result_before.stdout[0] | genie_diff(result_after.stdout[0], exclude=exclude_list) }}"
+```
+
+#### The result of example playbook
+```yaml
+PLAY [cisco] **********************************************************************************
+
+TASK [collect config (before)] ****************************************************************
+ok: [test3]
+
+TASK [load new acl into device] ***************************************************************
+ok: [test3]
+
+TASK [collect config (after)] *****************************************************************
+ok: [test3]
+
+TASK [debug] **********************************************************************************
+ok: [test3] => {
+    "msg": [
+        "ip access-list extended test:",
+        "+ permit ip host 192.168.114.1 any: ",
+        "+ permit ip host 192.168.114.2 any: ",
+        "+ permit ip host 192.168.114.3 any: "
+    ]
+}
+
+PLAY RECAP ************************************************************************************
+test3                      : ok=4    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+```
+
 License
 -------
 
