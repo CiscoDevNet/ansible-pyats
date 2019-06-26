@@ -8,8 +8,9 @@ Ansible role.  It contains modules, filters, and tasks:
 * Compare the current output of a command to a previous "snapshot"
 
 ## Modules
+* `pyats_parse_command`: Run a command on a remote device and return the structured output
 
-In addition to tasks to accomplish these things, `ansible-pyats` contains to filters:
+## Filters
 * `pyats_parser`: provides structured data from unstructured command output
 * `pyats_diff`: provides the difference between two data structures
 
@@ -20,7 +21,6 @@ In addition to tasks to accomplish these things, `ansible-pyats` contains to fil
 * genie
 
 ## Example Playbooks
-
 
 ### Run a command and retrieve the structured output
 ```yaml
