@@ -98,14 +98,14 @@ Ansible role.  It contains modules, filters, and tasks:
         parsed_output: "{{ cli_output.stdout | pyats_parser('show ip route', 'iosxe') }}"
 ```
 
-### Using the `genie_diff` filter directly
+### Using the `pyats_diff` filter directly
 ```yaml
 - name: Diff current and snapshot
   set_fact:
     diff_output: "{{ current_output | pyats_diff(previous_output) }}"
 ```
 
-### Change ACL configuration and compare before and after configs using `genie_diff`
+### Change ACL configuration and compare before and after configs using `genie_config_diff`
 ```yaml
 ---
 
@@ -137,7 +137,7 @@ Ansible role.  It contains modules, filters, and tasks:
 
     - name: debug
       debug:
-        msg: "{{ result_before.stdout[0] | genie_diff(result_after.stdout[0], mode='add', exclude=exclude_list) }}"
+        msg: "{{ result_before.stdout[0] | genie_config_diff(result_after.stdout[0], mode='add', exclude=exclude_list) }}"
 
   vars:
     exclude_list:
@@ -152,9 +152,9 @@ In the playbook example above, variable `excluded_list`, which is defined as the
 
 #### Other examples
 ```yaml
-        msg: "{{ result_before.stdout[0] | genie_diff(result_after.stdout[0]) }}"
-        msg: "{{ result_before.stdout[0] | genie_diff(result_after.stdout[0], mode='remove') }}"
-        msg: "{{ result_before.stdout[0] | genie_diff(result_after.stdout[0], exclude=exclude_list) }}"
+        msg: "{{ result_before.stdout[0] | genie_config_diff(result_after.stdout[0]) }}"
+        msg: "{{ result_before.stdout[0] | genie_config_diff(result_after.stdout[0], mode='remove') }}"
+        msg: "{{ result_before.stdout[0] | genie_config_diff(result_after.stdout[0], exclude=exclude_list) }}"
 ```
 
 #### The result of example playbook
@@ -182,6 +182,23 @@ ok: [test3] => {
 
 PLAY RECAP ************************************************************************************
 test3                      : ok=4    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+```
+
+
+### Compare show commands using `genie_parser_diff`
+This filter can compare the output of show commands parsed by Genie parser. The arguments `mode` and `exclude` also can be used.
+
+```yaml
+    - name: debug
+      debug:
+        msg: "{{ sh_int_parsed_before | genie_parser_diff(sh_int_parsed_after, mode='modified', exclude=exclude_list) }}"
+        
+  vars:
+    exclude_list:
+      - (.*in_octets.*)
+      - (.*in_pkts.*)
+      - (.*out_octets.*)
+      - (.*out_pkts.*)
 ```
 
 License
