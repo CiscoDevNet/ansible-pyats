@@ -51,7 +51,7 @@ class FilterModule(object):
         else:
             return None
 
-    def genie_diff(self, output1, output2, mode=None, exclude=None):
+    def genie_config_diff(self, output1, output2, mode=None, exclude=None):
         if not PY3:
             raise AnsibleFilterError("Genie requires Python 3")
 
@@ -81,8 +81,31 @@ class FilterModule(object):
         return diff_list
 
 
+    def genie_parser_diff(self, output1, output2, mode=None, exclude=None):
+        if not PY3:
+            raise AnsibleFilterError("Genie requires Python 3")
+
+        if not HAS_GENIE:
+            raise AnsibleFilterError("Genie not found. Run 'pip install genie'")
+
+        if not HAS_PYATS:
+            raise AnsibleFilterError("pyATS not found. Run 'pip install pyats'")
+
+        supported_mode = ['add', 'remove', 'modified', None]
+        if mode not in supported_mode:
+            raise AnsibleFilterError("Mode '%s' is not supported. Specify %s." % (mode, supported_mode) )
+
+        dd = Diff(output1, output2, mode=mode, exclude=exclude)
+        dd.findDiff()
+        diff = str(dd)
+        diff_list = diff.split('\n')
+
+        return diff_list
+
+
     def filters(self):
         return {
             'genie_parser': self.genie_parser,
-            'genie_diff': self.genie_diff
+            'genie_config_diff': self.genie_config_diff
+            'genie_parser_diff': self.genie_parser_diff
         }
