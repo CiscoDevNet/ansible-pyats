@@ -106,6 +106,6 @@ class FilterModule(object):
     def filters(self):
         return {
             'genie_parser': self.genie_parser,
-            'genie_config_diff': self.genie_config_diff
+            'genie_config_diff': self.genie_config_diff,
             'genie_parser_diff': self.genie_parser_diff
         }
