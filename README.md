@@ -7,18 +7,58 @@ Ansible role.  It contains modules, filters, and tasks:
 * "snapshot" the output of a command and save it to a file
 * Compare the current output of a command to a previous "snapshot"
 
+## Installation
+
+First, install the Python dependencies:
+
+```bash
+$ pip install pyats genie
+<snip>
+Installing collected packages: pyats, genie
+Successfully installed genie-19.9 pyats-19.9.2
+```
+
+> pyATS and Genie require Python >=3.4.
+
+### Manual
+
+For manual installation, you can just clone the repository into your
+[`ANSIBLE_ROLES_PATH`](https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-roles-path):
+
+```bash
+$ git clone https://github.com/CiscoDevNet/ansible-pyats "${ANSIBLE_ROLES_PATH:-roles}/ansible-pyats"
+Cloning into 'roles/ansible-pyats'...
+remote: Enumerating objects: 83, done.
+remote: Counting objects: 100% (83/83), done.
+remote: Compressing objects: 100% (56/56), done.
+remote: Total 83 (delta 28), reused 56 (delta 12), pack-reused 0
+Unpacking objects: 100% (83/83), done.
+```
+
+
+### Ansible Galaxy
+
+If you are using [Ansible Galaxy](https://docs.ansible.com/ansible/latest/reference_appendices/galaxy.html),
+you can use this role by adding the following to your `requirements.yml`:
+
+```yaml
+- src: https://github.com/CiscoDevNet/ansible-pyats
+  scm: git
+  name: ansible-pyats
+```
+
+Next, install your Galaxy dependencies:
+
+```bash
+$ ansible-galaxy install -r requirements.yml -p "${ANSIBLE_ROLES_PATH:-roles}"
+```
+
 ## Modules
 * `pyats_parse_command`: Run a command on a remote device and return the structured output
 
 ## Filters
 * `pyats_parser`: provides structured data from unstructured command output
 * `pyats_diff`: provides the difference between two data structures
-
-## Requirements
-
-
-* pyats
-* genie
 
 ## Example Playbooks
 
